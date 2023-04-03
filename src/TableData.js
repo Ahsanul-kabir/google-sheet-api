@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Container } from 'react-bootstrap';
 import axios from "axios";
 
-function App2() {
+function TableData() {
     const [userData, setUserdata] = useState([]);
     const [delMessage, setDelmessage] = useState('')
 
     const getData = async () => {
-        const reqData = await fetch("https://sheetdb.io/api/v1/iqeyp7vkwycgh");
+        const reqData = await fetch("https://sheetdb.io/api/v1/2pb343cavinfb");
         const resData = await reqData.json();
         setUserdata(resData);
     }
@@ -31,46 +31,42 @@ function App2() {
     }
 
     const handlealldelete = async () => {
-        const checkedinputvalue = [];
-        for (let i = 0; i < userData.length; i++) {
-            if (userData[i].isChecked === true) {
-                checkedinputvalue.push(parseInt(userData[i].Id));
-            }
-            else {
-                // alert("Please select at least one checkbix");
-            }
-        }
-
-        console.log('deleted data id', checkedinputvalue)
-
-
-        for (let i = 0; i < checkedinputvalue.length; i++) {
-            fetch(`https://sheetdb.io/api/v1/iqeyp7vkwycgh/Id/${JSON.stringify(checkedinputvalue[i])}`, {
-                method: 'DELETE',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
+        for (let i = 0; i < userData?.length; i++) {
+            const user = userData[i];
+            if (user?.isChecked) {
+                try {
+                    const url = `https://sheetdb.io/api/v1/2pb343cavinfb/Id/${user.Id}`;
+                    const data = await fetch(url, {
+                        method: "DELETE",
+                        headers: {
+                            Accept: "application/json",
+                            "Content-Type": "application/json",
+                        },
+                    });
+                    const res = await data.json();
+                    if (res.deleted === 1) {
+                        getData();
+                        console.log(`User ${user.Id} Successfully Deleted`);
+                    } else {
+                        console.log(`User ${user.Id} Delete Failed`);
+                    }
+                } catch (error) {
+                    console.log(error);
                 }
-            })
-                .then((response) => response.json())
-                .then(() => getData())
-                .then((data) => console.log(data))
+            }
         }
-
-
-    }
+        // getData();
+    };
 
     return (
         <React.Fragment>
             <Container className="content">
                 <div className="row">
                     <div className="col-sm-12">
-                        <h5 className="text-danger">{delMessage} </h5>
                         <button className="btn btn-danger mb-3" onClick={() => { handlealldelete() }}>Delete </button>
                         <form className="form w-100">
                             <table className="table">
                                 <thead>
-
                                     <tr>
                                         <th>
                                             <input type="checkbox" name="allselect" checked={!userData.some((user) => user?.isChecked !== true)} onChange={handleChange} />
@@ -103,4 +99,4 @@ function App2() {
     );
 }
 
-export default App2;
+export default TableData;
